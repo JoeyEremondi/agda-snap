@@ -1,0 +1,120 @@
+name: agda # you probably want to 'snapcraft register <name>'
+base: core24 # the base snap is the execution environment for this snap
+version: 'agda2.8.0+stdlib2.3-release+0.1' # just for humans, typically '1.2+git' or '1.3.2'
+summary:  dependently typed functional programming language
+website: "https://agda.readthedocs.io/en/v2.8.0/"
+description: |
+  Agda is a dependently typed programming language. This snap packages the Agda compiler, the Agda standard library,
+  and the source code of the textbook Programming Languages Foundations in Agda.
+  If the $AGDA_DIR environment variable is not set, it defaults to $SNAP/agda_dir,
+  which contains `libraries` and `defaults` files referencing stdlib and plfa.
+
+grade: stable
+confinement: strict
+
+parts:
+  agda:
+    plugin: dump
+    source-type: tar
+    source: https://github.com/agda/agda/releases/download/v2.8.0/Agda-v2.8.0-linux.tar.xz
+    organize:
+      agda: bin/agda
+
+
+  # plfa:
+  #   plugin: dump
+  #   source: https://github.com/plfa/plfa.github.io.git
+  #   source-type: git
+  #   source-branch: dev
+  #   source-subdir: plfa
+  #   source-depth: 1
+
+  wrapper:
+    plugin: dump
+    source: ./bin
+    source-type: local
+    organize:
+      wrapper.sh: bin/wrapper.sh
+    after: [agda]
+
+
+  agda-dir:
+    plugin: dump
+    source: ./agda-dir
+    source-type: local
+    organize:
+      libraries: agda-dir/libraries
+      defaults: agda-dir/defaults
+    after: [agda]
+
+  agda-stdlib:
+    plugin: dump
+    source: https://github.com/agda/agda-stdlib.git
+    source-type: git
+    source-branch: v2.3-release
+    source-depth: 1
+    after: [agda]
+    organize:
+      src: agda-stdlib/src
+      standard-library.agda-lib: agda-stdlib/standard-library.agda-lib
+    # override-build: |
+    #   $SNAPCRAFT_STAGE/bin/agda --build-library
+    stage:
+      - agda-stdlib/src
+      # - agda-stdlib/standard-library.agda-lib
+
+  stdlib-libfile:
+    plugin: dump
+    source: ./stdlib-file
+    organize:
+      standard-library.agda-lib: agda-stdlib/standard-library.agda-lib
+
+
+  plfa:
+    plugin: dump
+    source: https://github.com/plfa/plfa.github.io.git
+    source-type: git
+    source-branch: dev
+    source-depth: 1
+    after: [agda]
+    organize:
+      src: plfa/src
+    # override-build: |
+    #   $SNAPCRAFT_STAGE/bin/agda --build-library
+    stage:
+      - plfa/src
+
+  # build-stdlib:
+  #   plugin: nil
+  #   after: [agda, wrapper, agda-stdlib]
+  #   override-build: |
+  #     mkdir -p agda-stdlib/_build
+  #     cd agda-stdlib/_build
+  #     BUILD_DIR=`pwd`
+  #     cd $SNAPCRAFT_STAGE/agda-stdlib
+  #     $SNAPCRAFT_STAGE/bin/agda --build-library --compile-dir="$BUILD_DIR"
+  #     mkdir -p $SNAPCRAFT_PART_INSTALL/agda-stdlib
+  #     cp -r ./_build $SNAPCRAFT_PART_INSTALL/agda-stdlib/_build
+  #     echo '  --compile-dir=$SNAP_USER_COMMON/_build' >> $SNAPCRAFT_PART_INSTALL/agda-stdlib/standard-library.agda-lib
+  #     # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/agda-stdlib
+
+  # build-plfa:
+  #   plugin: nil
+  #   after: [agda, wrapper, plfa, agda-stdlib, build-stdlib]
+  #   override-build: |
+  #     mkdir -p plfa/_build
+  #     cd plfa/_build
+  #     BUILD_DIR=`pwd`
+  #     cd $SNAPCRAFT_STAGE/plfa/src
+  #     echo "$SNAPCRAFT_STAGE/agda-stdlib/standard-library.agda-lib" > ./libraries
+  #     for f in ./plfa/*/*.lagda.md; do $SNAPCRAFT_STAGE/bin/agda $f -WnoRewritesNothing --compile-dir="$BUILD_DIR" --library-file=./libraries ; done
+  #     rm ./libraries
+  #     mkdir -p $SNAPCRAFT_PART_INSTALL/plfa
+  #     cp -r ./_build $SNAPCRAFT_PART_INSTALL/plfa/_build
+  #     # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/plfa
+
+apps:
+  agda:
+    command: bin/wrapper.sh
+    plugs: [home]
+
