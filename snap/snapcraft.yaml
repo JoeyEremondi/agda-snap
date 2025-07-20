@@ -35,6 +35,7 @@ parts:
     source-type: local
     organize:
       wrapper.sh: bin/wrapper.sh
+      agda-setup-stdlib-: bin/wrapper.sh
     after: [agda]
 
 

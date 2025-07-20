@@ -1,17 +1,16 @@
 #!/bin/bash
 
-echo "Current snap files:"
-ls $SNAP
-for f in $SNAP
-do
-    echo "listing $f"
-    ls $f
-done
 
 #  Assign the agda directories to defaults if they're not already set
 if [ -z "${AGDA_DIR+x}" ]; then
-  export AGDA_DIR=$SNAP/agda-dir
+  # If there's no AGDA_DIR explicitly set, and the default one hasn't been created,
+  # then create it and initialize the stdlib and plfa
+  if [ ! -d "agda" ]; then
+    agda-setup-stdlib-plfa
+  fi
+  export AGDA_DIR=$SNAP_USER_COMMON/agda-dir
 fi
+
 
 if [ -z "${Agda_datadir+x}" ]; then
   mkdir -p $SNAP_USER_COMMON/agda_data
