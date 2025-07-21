@@ -6,7 +6,7 @@ if [ -z "${AGDA_DIR+x}" ]; then
   # If there's no AGDA_DIR explicitly set, and the default one hasn't been created,
   # then create it and initialize the stdlib and plfa
   if [ ! -d "agda" ]; then
-    agda-setup-stdlib-plfa
+    $SNAP/bin/agda-setup-stdlib-plfa.sh
   fi
   export AGDA_DIR=$SNAP_USER_COMMON/agda-dir
 fi

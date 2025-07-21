@@ -21,21 +21,13 @@ parts:
       agda: bin/agda
 
 
-  # plfa:
-  #   plugin: dump
-  #   source: https://github.com/plfa/plfa.github.io.git
-  #   source-type: git
-  #   source-branch: dev
-  #   source-subdir: plfa
-  #   source-depth: 1
-
   wrapper:
     plugin: dump
     source: ./bin
     source-type: local
     organize:
       wrapper.sh: bin/wrapper.sh
-      agda-setup-stdlib-: bin/wrapper.sh
+      agda-setup-stdlib-plfa: bin/agda-setup-stdlib-plfa.sh
     after: [agda]
 
 
@@ -62,13 +54,13 @@ parts:
     #   $SNAPCRAFT_STAGE/bin/agda --build-library
     stage:
       - agda-stdlib/src
-      # - agda-stdlib/standard-library.agda-lib
+      - agda-stdlib/standard-library.agda-lib
 
-  stdlib-libfile:
-    plugin: dump
-    source: ./stdlib-file
-    organize:
-      standard-library.agda-lib: agda-stdlib/standard-library.agda-lib
+  # stdlib-libfile:
+  #   plugin: dump
+  #   source: ./stdlib-file
+  #   organize:
+  #     standard-library.agda-lib: agda-stdlib/standard-library.agda-lib
 
 
   plfa:
@@ -85,34 +77,34 @@ parts:
     stage:
       - plfa/src
 
-  # build-stdlib:
-  #   plugin: nil
-  #   after: [agda, wrapper, agda-stdlib]
-  #   override-build: |
-  #     mkdir -p agda-stdlib/_build
-  #     cd agda-stdlib/_build
-  #     BUILD_DIR=`pwd`
-  #     cd $SNAPCRAFT_STAGE/agda-stdlib
-  #     $SNAPCRAFT_STAGE/bin/agda --build-library --compile-dir="$BUILD_DIR"
-  #     mkdir -p $SNAPCRAFT_PART_INSTALL/agda-stdlib
-  #     cp -r ./_build $SNAPCRAFT_PART_INSTALL/agda-stdlib/_build
-  #     echo '  --compile-dir=$SNAP_USER_COMMON/_build' >> $SNAPCRAFT_PART_INSTALL/agda-stdlib/standard-library.agda-lib
-  #     # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/agda-stdlib
+  build-stdlib:
+    plugin: nil
+    after: [agda, wrapper, agda-stdlib]
+    override-build: |
+      mkdir -p agda-stdlib/_build
+      cd agda-stdlib/_build
+      BUILD_DIR=`pwd`
+      cd $SNAPCRAFT_STAGE/agda-stdlib
+      $SNAPCRAFT_STAGE/bin/agda --build-library --compile-dir="$BUILD_DIR"
+      mkdir -p $SNAPCRAFT_PART_INSTALL/agda-stdlib
+      cp -r ./_build $SNAPCRAFT_PART_INSTALL/agda-stdlib/_build
+      echo '  --compile-dir=$SNAP_USER_COMMON/_build' >> $SNAPCRAFT_PART_INSTALL/agda-stdlib/standard-library.agda-lib
+      # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/agda-stdlib
 
-  # build-plfa:
-  #   plugin: nil
-  #   after: [agda, wrapper, plfa, agda-stdlib, build-stdlib]
-  #   override-build: |
-  #     mkdir -p plfa/_build
-  #     cd plfa/_build
-  #     BUILD_DIR=`pwd`
-  #     cd $SNAPCRAFT_STAGE/plfa/src
-  #     echo "$SNAPCRAFT_STAGE/agda-stdlib/standard-library.agda-lib" > ./libraries
-  #     for f in ./plfa/*/*.lagda.md; do $SNAPCRAFT_STAGE/bin/agda $f -WnoRewritesNothing --compile-dir="$BUILD_DIR" --library-file=./libraries ; done
-  #     rm ./libraries
-  #     mkdir -p $SNAPCRAFT_PART_INSTALL/plfa
-  #     cp -r ./_build $SNAPCRAFT_PART_INSTALL/plfa/_build
-  #     # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/plfa
+  build-plfa:
+    plugin: nil
+    after: [agda, wrapper, plfa, agda-stdlib, build-stdlib]
+    override-build: |
+      mkdir -p plfa/_build
+      cd plfa/_build
+      BUILD_DIR=`pwd`
+      cd $SNAPCRAFT_STAGE/plfa/src
+      echo "$SNAPCRAFT_STAGE/agda-stdlib/standard-library.agda-lib" > ./libraries
+      for f in ./plfa/*/*.lagda.md; do $SNAPCRAFT_STAGE/bin/agda $f -WnoRewritesNothing --compile-dir="$BUILD_DIR" --library-file=./libraries ; done
+      rm ./libraries
+      mkdir -p $SNAPCRAFT_PART_INSTALL/plfa
+      cp -r ./_build $SNAPCRAFT_PART_INSTALL/plfa/_build
+      # cp -r "$STDLIB_DIR" $SNAPCRAFT_PART_INSTALL/plfa
 
 apps:
   agda:
