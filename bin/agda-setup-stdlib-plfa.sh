@@ -2,6 +2,8 @@
 
 # Script to copy the standard library and PLFA sources to a common repo
 
+echo "Installing standard library and PLFA for first Agda run"
+
 mkdir -p $SNAP_USER_COMMON/agda-dir
 # Copy the standard library
 cp -r $SNAP/agda-stdlib $SNAP_USER_COMMON/agda-dir

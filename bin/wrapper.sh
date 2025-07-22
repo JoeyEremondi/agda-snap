@@ -5,7 +5,7 @@
 if [ -z "${AGDA_DIR+x}" ]; then
   # If there's no AGDA_DIR explicitly set, and the default one hasn't been created,
   # then create it and initialize the stdlib and plfa
-  if [ ! -d "agda" ]; then
+  if [ ! -d "$SNAP_USER_COMMON/agda-dir" ]; then
     $SNAP/bin/agda-setup-stdlib-plfa.sh
   fi
   export AGDA_DIR=$SNAP_USER_COMMON/agda-dir
@@ -22,8 +22,4 @@ fi
 mkdir -p $SNAP_USER_COMMON/tmp
 export TMPDIR=$SNAP_USER_COMMON/tmp
 
-# Make directory to put compile artifacts
-mkdir -p $SNAP_USER_COMMON/_build
-
-
-$SNAP/bin/agda --compile-dir="$SNAP_USER_COMMON/_build" "$@"
+$SNAP/bin/agda "$@"
