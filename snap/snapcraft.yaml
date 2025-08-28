@@ -1,6 +1,6 @@
 name: agda-stdlib-plfa # you probably want to 'snapcraft register <name>'
 base: core24 # the base snap is the execution environment for this snap
-version: 'agda2.8.0+stdlib2.3_0.3' # just for humans, typically '1.2+git' or '1.3.2'
+version: 'agda2.8.0+stdlib2.3+0.4' # just for humans, typically '1.2+git' or '1.3.2'
 summary:  dependently typed functional programming language
 website: "https://agda.readthedocs.io/en/v2.8.0/"
 description: |
@@ -30,6 +30,7 @@ parts:
     organize:
       wrapper.sh: bin/wrapper.sh
       setup.sh: bin/setup.sh
+      agda-do-initial-setup: bin/agda-do-initial-setup
       agda-setup-stdlib-plfa.sh: bin/agda-setup-stdlib-plfa.sh
     after: [agda]
 
